@@ -1,0 +1,62 @@
+{
+  "name": "facility-service-api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node ./src/api/index.js",
+    "lint": "eslint --fix .",
+    "precommit": "lint-staged",
+    "pm2-with-watch": "pm2 start --no-daemon ecosystem.config.js",
+    "apidoc-generate": "apidoc -i ./src/sample -o ./apidoc",
+    "apidoc-open": "http-server ./apidoc -p 10800"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@types/async": "^2.0.48",
+    "@types/express": "^4.11.1",
+    "@types/lodash": "^4.14.106",
+    "@types/pino": "^4.7.1",
+    "@types/sequelize": "^4.27.12",
+    "apidoc": "^0.17.6",
+    "async": "^2.6.0",
+    "body-parser": "^1.18.2",
+    "config": "^1.30.0",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "express-promise-router": "^3.0.2",
+    "http-server": "^0.11.1",
+    "lodash": "^4.17.5",
+    "md5": "^2.2.1",
+    "moment": "^2.22.0",
+    "moment-timezone": "^0.5.17",
+    "morgan": "^1.9.0",
+    "mysql": "^2.15.0",
+    "node-fetch": "^2.1.2",
+    "pg": "^7.4.3",
+    "pino": "^4.15.4"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.2",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "2.9.0",
+    "eslint-plugin-prettier": "2.6.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.0.2",
+    "pm2": "^2.10.2",
+    "prettier": "^1.12.1"
+  },
+  "apidoc": {
+    "template": {
+      "forceLanguage": "en"
+    },
+    "title": "facility apiDoc browser title",
+    "url": "https//localhost"
+  }
+}
