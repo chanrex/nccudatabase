@@ -1,16 +1,16 @@
 'use strict';
 
-const express = require('express');
-// const doquery = require('../../../config/db');
+const { doquery, client } = require('../../../config/postgresql');
 
-const { doquery } = require('../../../config/postgresql');
-
-const router = express.Router();
+const Router = require('express-promise-router');
+const router = new Router();
 
 router.get('/', (req, res) => {
+  let { rows } = client.query('select * from book');
   res.json({
-    data: 'welcome to backend'
-  })
-})
+    status: 'success',
+    data: rows,
+  });
+});
 
 module.exports = router;
