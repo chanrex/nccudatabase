@@ -11,14 +11,19 @@ const cors = require('cors');
 const routes = require('./routes/index.js');
 
 const app = express();
+const port = 5000;
+
+console.log('this is dirname', path.resolve(__dirname));
 
 /**** server configuration ****/
 
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use(cors());
 app.use(logger('dev'));
+app.use(express.static(path.join(__dirname + '/public')));
 
 app.use('/', routes); // testing && TODO: signin
 
@@ -49,6 +54,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(5000);
+console.log('port opening on ' + port);
+app.listen(port);
 
 module.exports = app;
