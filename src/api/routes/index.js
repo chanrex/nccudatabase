@@ -45,21 +45,24 @@ router.get('/category', async (req, res) => {
   });
 });
 
-router.get('/signin', async (req, res) => {
-  let { account, password } = req.body;
+router.post('/signin', async (req, res) => {
+  let { email, password } = req.body;
+  console.log('inside signIn', req.body);
 
   let { rows } = await client.query(
-    'select * from users where user_name = $1 and user_password = $2',
-    [account, password],
+    'select * from users where user_email = $1 and user_password = $2',
+    [email, password],
   );
 
   if (rows.length > 0) {
     res.json({
       status: 'success',
+      data: rows[0],
     });
   } else {
     res.json({
       status: 'failed',
+      data: null,
     });
   }
 });
