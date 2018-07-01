@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/authors', async (req, res) => {
-  let { rows } = await client.query('select * from author');
+  let { rows } = await client.query(`select * from author where status = '1'`);
   res.json({
     status: 'success',
     data: rows,
@@ -22,7 +22,9 @@ router.get('/authors', async (req, res) => {
 });
 
 router.get('/publishers', async (req, res) => {
-  let { rows } = await client.query('select * from publisher');
+  let { rows } = await client.query(
+    `select * from publisher where status ='1'`,
+  );
   res.json({
     status: 'success',
     data: rows,
@@ -42,6 +44,46 @@ router.get('/category', async (req, res) => {
   res.json({
     status: 'success',
     data: rows,
+  });
+});
+
+router.post('/addBook', async (req, res) => {
+  console.log(req.body);
+  let {
+    book_name,
+    book_title,
+    book_description,
+    book_publish_date,
+    book_isbn,
+    book_price,
+    author_id,
+    publisher_id,
+    user_id,
+  } = req.body;
+
+  let book_query = `insert into books (book_name, book_title, book_description, book_publish_date, book_isbn, book_price, author_id, publisher_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) returning *`;
+  let { rows } = await client.query(book_query, [
+    book_name,
+    book_title,
+    book_description,
+    book_publish_date,
+    book_isbn,
+    book_price,
+    author_id,
+    publisher_id,
+  ]);
+  console.log('step 1', rows);
+
+  let { id } = rows[0];
+
+  let user_book_query = `insert into user_book (user_id, book_id) VALUES ($1, $2) returning *`;
+
+  let result = await client.query(user_book_query, [user_id, id]);
+  console.log('final result', result.rows);
+
+  res.json({
+    status: 'success',
+    data: result.rows,
   });
 });
 
