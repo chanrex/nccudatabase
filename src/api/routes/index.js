@@ -13,6 +13,27 @@ router.get('/', (req, res) => {
   });
 });
 
+router.get('/books', async (req, res) => {
+  // let query = `select * from books bks
+  //   left join (select book_id, array_agg(category_name) from books_category left join category c2 on books_category.category_id = c2.id group by books_category.book_id) nt on bks.id = nt.book_id
+  //   left join author a on bks.author_id = a.id
+  //   left join publisher p on bks.publisher_id = p.id`;
+
+  let query = `
+    select * from user_book
+      left join
+        (select *, bks.id as booksid_id from books bks
+            left join (select book_id, array_agg(category_name) from books_category left join category c2 on books_category.category_id = c2.id group by books_category.book_id) nt on bks.id = nt.book_id
+            left join author a on bks.author_id = a.id
+            left join publisher p on bks.publisher_id = p.id)
+        b on user_book.book_id = b.booksid_id`;
+  let { rows } = await client.query(query);
+  res.json({
+    status: 'success',
+    data: rows,
+  });
+});
+
 router.get('/authors', async (req, res) => {
   let { rows } = await client.query(`select * from author where status = '1'`);
   res.json({
@@ -39,8 +60,10 @@ router.get('/users', async (req, res) => {
   });
 });
 
-router.get('/category', async (req, res) => {
-  let { rows } = await client.query('select * from category');
+router.get('/categorys', async (req, res) => {
+  let { rows } = await client.query(
+    `select * from category where status = '1'`,
+  );
   res.json({
     status: 'success',
     data: rows,
@@ -59,6 +82,7 @@ router.post('/addBook', async (req, res) => {
     author_id,
     publisher_id,
     user_id,
+    category_array,
   } = req.body;
 
   let book_query = `insert into books (book_name, book_title, book_description, book_publish_date, book_isbn, book_price, author_id, publisher_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) returning *`;
@@ -79,7 +103,14 @@ router.post('/addBook', async (req, res) => {
   let user_book_query = `insert into user_book (user_id, book_id) VALUES ($1, $2) returning *`;
 
   let result = await client.query(user_book_query, [user_id, id]);
-  console.log('final result', result.rows);
+
+  console.log('user_book result', result.rows);
+
+  for (let i = 0; i < category_array.length; i++) {
+    let categoryQuery = `insert into books_category (book_id, category_id) values ($1, $2) returning *`;
+
+    let { rows } = await client.query(categoryQuery, [id, category_array[i]]);
+  }
 
   res.json({
     status: 'success',
