@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node ./src/api/index.js",
+    "start": "yarn pm2-with-watch",
     "lint": "eslint --fix .",
     "precommit": "lint-staged",
     "pm2-with-watch": "pm2 start --no-daemon ecosystem.config.js"

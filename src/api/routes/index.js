@@ -43,6 +43,23 @@ router.get('/myPurchase/:user_id', async (req, res) => {
             left join author a on bks.author_id = a.id
             left join publisher p on bks.publisher_id = p.id)
         b on user_book.book_id = b.booksid_id
+    where user_book.buyer_id = $1`;
+  let { rows } = await client.query(query, [req.params.user_id]);
+  res.json({
+    status: 'success',
+    data: rows,
+  });
+});
+
+router.get('/myBook/:user_id', async (req, res) => {
+  let query = `
+    select * from user_book
+      left join
+        (select *, bks.id as booksid_id from books bks
+            left join (select book_id, array_agg(category_name) as category_name_all, array_agg(c2.id) as category_id_all from books_category left join category c2 on books_category.category_id = c2.id group by books_category.book_id) nt on bks.id = nt.book_id
+            left join author a on bks.author_id = a.id
+            left join publisher p on bks.publisher_id = p.id)
+        b on user_book.book_id = b.booksid_id
     where user_book.user_id = $1`;
   let { rows } = await client.query(query, [req.params.user_id]);
   res.json({
