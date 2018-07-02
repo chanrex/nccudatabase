@@ -34,6 +34,32 @@ router.get('/books', async (req, res) => {
   });
 });
 
+router.get('/myPurchase/:user_id', async (req, res) => {
+  let query = `
+    select * from user_book
+      left join
+        (select *, bks.id as booksid_id from books bks
+            left join (select book_id, array_agg(category_name) from books_category left join category c2 on books_category.category_id = c2.id group by books_category.book_id) nt on bks.id = nt.book_id
+            left join author a on bks.author_id = a.id
+            left join publisher p on bks.publisher_id = p.id)
+        b on user_book.book_id = b.booksid_id
+    where user_book.user_id = $1`;
+  let { rows } = await client.query(query, [req.params.user_id]);
+  res.json({
+    status: 'success',
+    data: rows,
+  });
+});
+
+router.post('/purchase', async (req, res) => {
+  console.log(req.body);
+  let query = `update user_book set buyer_id = $1, sold = true where book_id = $2`;
+  let result = await client.query(query, [req.body.buyer_id, req.body.book_id]);
+  res.json({
+    status: 'success',
+  });
+});
+
 router.get('/authors', async (req, res) => {
   let { rows } = await client.query(`select * from author where status = '1'`);
   res.json({
